@@ -18,7 +18,16 @@ NOTES: 		1) All the properties of the contact (firstName, lastName, phone) can h
 			   need to think of how read contact(s) will be implemented as well to ensure both Add/Read will work.
 */
 exports.AddContact = function(filename, contact){
-
+	var scontact=JSON.stringify(contact);
+		if(fs.readFileSync(filename,"utf8")!="")
+		{
+			fs.appendFileSync(filename,".");
+			fs.appendFileSync(filename,scontact);
+		}
+		else
+		{
+			fs.writeFileSync(filename,scontact);	
+		}
 }
 
 /*
@@ -34,6 +43,14 @@ NOTES: 		1) All the properties of the contact (firstName, lastName, phone) can h
 
 exports.ReadContacts = function(filename){
 
+	var str=fs.readFileSync(filename,"utf8");
+	var list_contacts=str.split(".");
+	var res=[];
+	for(var i=0;i<list_contacts.length;i++)
+	{
+		res.push(JSON.parse(list_contacts[i]));
+	}
+	return res;
 }
 
 /*
@@ -50,7 +67,17 @@ NOTES: 		You need to only come up with a functionally correct solution and it do
 
 */
 exports.UpdateContact = function(filename, contactname, newPhoneNumber){
-
+	var res=exports.ReadContacts(filename);
+	for(var i=0;i<res.length;i++)
+	{
+		if(res[i].firstName==contactname)
+		{
+			res[i].phone=newPhoneNumber;
+		}
+		res[i]=JSON.stringify(res[i]);
+	}
+	var str=res.join(".");
+	fs.writeFileSync(filename,str);
 }
 
 /*
@@ -66,6 +93,20 @@ NOTES: 		You need to only come up with a functionally correct solution and it do
 
 */
 exports.DeleteContact = function(filename, contactname){
-
+	var res=exports.ReadContacts(filename);
+	var length=res.length;
+	for(var i=0;i<length;)
+	{
+		if(res[i].firstName==contactname)
+		{
+			res.splice(i,1);
+			length--;
+		}
+		else i++;
+	}
+	for(var i=0;i<res.length;i++)
+		res[i]=JSON.stringify(res[i]);
+	var str=res.join(".");
+	fs.writeFileSync(filename,str);
 }
 
